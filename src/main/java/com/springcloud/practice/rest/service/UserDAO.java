@@ -1,6 +1,9 @@
 package com.springcloud.practice.rest.service;
 
+import com.springcloud.practice.rest.model.Post;
 import com.springcloud.practice.rest.model.User;
+import com.springcloud.practice.rest.repo.PostRepository;
+import com.springcloud.practice.rest.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -8,39 +11,38 @@ import java.util.*;
 
 @Component
 public class UserDAO {
-    private static List<User> users = new ArrayList<>();
-    private static int userCount = 3;
-    static {
-        users.add(new User(1,"Adam",new Date()));
-        users.add(new User(2,"Eve",new Date()));
-        users.add(new User(3,"Jack",new Date()));
-    }
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PostRepository postRepository;
 
     public List<User> findAll(){
-        return users;
+        return userRepository.findAll();
     }
 
     public User save(User user){
-        if(user.getId() == null)
-            user.setId(++userCount);
-        users.add(user);
+        userRepository.save(user);
         return user;
     }
 
+    public Post savePost(User user, Post post){
+        post.setUser(user);
+        postRepository.save(post);
+        return post;
+    }
+
     public User findOne(int id){
-        final Optional<User> user = users.stream().filter(u -> u.getId().equals(id)).findFirst();
+        final Optional<User> user = userRepository.findById(id);
         return user.isPresent() ?  user.get() : null;
     }
 
     public User deleteById(int id){
-        final Iterator<User> iterator = users.iterator();
-        while (iterator.hasNext()){
-            final User user = iterator.next();
-            if(user.getId() == id) {
-                iterator.remove();
-                return user;
+        final Optional<User> user = userRepository.findById(id);
+            if(user.isPresent()) {
+                userRepository.deleteById(id);
+                return user.get();
             }
-        }
         return null;
     }
 }
