@@ -11,16 +11,18 @@ import net.minidev.json.annotate.JsonIgnore;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties(value = {"id"})
+//@JsonIgnoreProperties(value = {"id"})
 public class User {
     @Id
     @GeneratedValue
@@ -31,4 +33,7 @@ public class User {
     @Past
     @ApiModelProperty(notes = "BirthDate should be in the past")
     private Date birthDate;
+
+    @OneToMany(mappedBy = "user")//mapped by user field in Post object
+    private List<Post> posts;
 }

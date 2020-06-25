@@ -1,5 +1,6 @@
 package com.springcloud.practice.rest.controller;
 
+import com.springcloud.practice.rest.model.Post;
 import com.springcloud.practice.rest.model.User;
 import com.springcloud.practice.rest.service.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Locale;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -60,6 +60,21 @@ public class UserController {
         return ResponseEntity.created(location).build();
     }
 
+    @GetMapping("/users/{id}/posts")
+    public List<Post> retrieveAllPosts(@PathVariable int id){
+        final User user = userDAO.findOne(id);
+        if(user == null) throw  new UserNotFoundException("id-"+id);
+        return user.getPosts();
+    }
+
+    @PostMapping("/users/{id}/posts")
+    public ResponseEntity<Object> createPost(@PathVariable int id, @RequestBody Post post){
+        final User user = userDAO.findOne(id);
+        if(user == null) throw  new UserNotFoundException("id-"+id);
+        userDAO.savePost(user, post);
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(post.getId()).toUri();
+        return ResponseEntity.created(location).build();
+    }
     /*@GetMapping("/hello")
     public String hello(@RequestHeader(name="Accept-Language", required = false) Locale locale){
         return messageSource.getMessage("good.morning.message", null,locale);
